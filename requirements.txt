@@ -7,9 +7,7 @@ statsmodels
 plotly
 networkx
 openpyxl
-streamlit
 openai>=1.0.0
-streamlit-chat
 gspread
 google-auth
 pygsheets
@@ -17,8 +15,6 @@ bcrypt
 extruct
 w3lib
 lxml
-transformers
-torch
 beautifulsoup4
 requests
 pycountry
