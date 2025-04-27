@@ -1,4 +1,4 @@
-streamlit
+streamlit>=1.30
 pandas
 numpy
 matplotlib
@@ -18,5 +18,4 @@ lxml
 beautifulsoup4
 requests
 pycountry
-streamlit>=1.30
 streamlit-shadcn-ui>=0.1.4
