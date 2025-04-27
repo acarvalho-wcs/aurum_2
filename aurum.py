@@ -40,6 +40,9 @@ brt = pytz.timezone("America/Sao_Paulo")
 st.set_page_config(page_title="Aurum Dashboard", layout="wide")
 st.title("Aurum - Criminal Intelligence in Wildlife Trafficking")
 
+# --- ID DA PLANILHA CONECTADA ---
+SHEET_ID = "1HVYbot3Z9OBccBw7jKNw5acodwiQpfXgavDTIptSKic"
+
 # Upload do arquivo
 from PIL import Image
 logo = Image.open("logo.png")
