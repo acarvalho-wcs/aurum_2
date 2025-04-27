@@ -1,4 +1,3 @@
-
 # --- aurum_data.py ---
 
 import pandas as pd
@@ -57,3 +56,15 @@ def load_alerts():
 
 def load_alert_updates():
     return load_sheet_dataframe("Alert Updates")
+
+def get_worksheet(sheet_name="Aurum_data"):
+    """Retorna diretamente uma worksheet específica."""
+    sheets = connect_to_sheets()
+    if sheets:
+        try:
+            return sheets.worksheet(sheet_name)
+        except Exception as e:
+            st.error(f"❌ Erro ao acessar aba '{sheet_name}': {e}")
+            return None
+    else:
+        return None
