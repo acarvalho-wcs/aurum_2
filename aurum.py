@@ -82,6 +82,20 @@ with open("Aurum_template.xlsx", "rb") as f:
 users_df = load_users()
 requests_df = load_requests()
 
+# --- Conectar com o Google Sheets ---
+def connect_to_sheets():
+    try:
+        scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+        credentials = Credentials.from_service_account_info(st.secrets["gcp_service_account"], scopes=scope)
+        client = gspread.authorize(credentials)
+        return client
+    except Exception as e:
+        st.error(f"❌ Erro ao conectar com o Google Sheets: {e}")
+        return None
+
+# --- Conecta logo ao abrir o app
+sheets = connect_to_sheets()
+
 # --- Função para acessar worksheet de dados principais ---
 def get_worksheet(name="Aurum_data"):
     return sheets.worksheet(name)
