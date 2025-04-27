@@ -26,6 +26,7 @@ from sklearn.preprocessing import StandardScaler
 
 # --- IMPORTS INTERNOS DO AURUM ---
 from aurum_data import (
+    connect_to_sheets,
     load_aurum_data,
     load_users,
     load_requests,
