@@ -1387,6 +1387,11 @@ def display_alert_update_timeline(sheet_id):
 
     user = st.session_state["user"]
 
+    # 🔥 Verificação: df_updates precisa ter a coluna "User" antes de usar
+    if "User" not in df_updates.columns:
+        st.warning("⚠️ No updates available yet.")
+        return
+
     # Alertas criados pelo usuário
     created_alerts = df_alerts[df_alerts["Created By"] == user]
 
