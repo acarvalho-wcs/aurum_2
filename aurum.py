@@ -1284,9 +1284,11 @@ if st.session_state.get("is_admin"):
 
 # --- FORMULÁRIO ---
 def get_worksheet(sheet_name="Aurum_data"):
-    gc = gspread.authorize(credentials)
-    sh = gc.open_by_key("1HVYbot3Z9OBccBw7jKNw5acodwiQpfXgavDTIptSKic")
-    return sh.worksheet(sheet_name)
+    sheets = connect_to_sheets()
+    if sheets:
+        return sheets.worksheet(sheet_name)
+    else:
+        return None
 
 # --- Função para carregar dados de qualquer aba ---
 def load_sheet_data(sheet_name, sheets):
@@ -1541,7 +1543,12 @@ if "user" in st.session_state:
                 try:
                     records = worksheet.get_all_records()
                     df_user = pd.DataFrame(records)
-                    df_user = df_user[df_user["Author"] == st.session_state["user"]]
+
+                    if "Author" in df_user.columns:
+                        df_user = df_user[df_user["Author"] == st.session_state.get("user", "")]
+                    else:
+                        st.warning("⚠️ 'Author' column not found in data.")
+                        df_user = pd.DataFrame()
 
                     if df_user.empty:
                         st.info("You haven't submitted any cases yet.")
@@ -1549,23 +1556,23 @@ if "user" in st.session_state:
                         selected_case = st.selectbox("Select a case to edit:", df_user["Case #"].unique())
                         if selected_case:
                             row_index = df_user[df_user["Case #"] == selected_case].index[0] + 2
-                            current_row = df_user.loc[df_user["Case #"] == selected_case].iloc[0]
+                            current_row = df_user[df_user["Case #"] == selected_case].iloc[0]
 
                             with st.form("edit_case_form"):
-                                new_case_id = st.text_input("Case #", value=current_row["Case #"])
-                                new_seizure_country = st.text_input("Country of seizure or shipment", value=current_row["Country of seizure or shipment"])
-                                new_n_seized = st.text_input("N seized specimens", value=current_row["N seized specimens"])
-                                new_year = st.number_input("Year", step=1, format="%d", value=int(current_row["Year"]))
-                                new_country = st.text_input("Country of offenders", value=current_row["Country of offenders"])
-                                new_status = st.text_input("Seizure status", value=current_row["Seizure status"])
-                                new_transit = st.text_input("Transit feature", value=current_row["Transit feature"])
-                                new_notes = st.text_area("Additional notes", value=current_row["Notes"])
+                                new_case_id = st.text_input("Case #", value=current_row.get("Case #", ""))
+                                new_seizure_country = st.text_input("Country of seizure or shipment", value=current_row.get("Country of seizure or shipment", ""))
+                                new_n_seized = st.text_input("N seized specimens", value=current_row.get("N seized specimens", ""))
+                                new_year = st.number_input("Year", step=1, format="%d", value=int(current_row.get("Year", 2024)))
+                                new_country = st.text_input("Country of offenders", value=current_row.get("Country of offenders", ""))
+                                new_status = st.text_input("Seizure status", value=current_row.get("Seizure status", ""))
+                                new_transit = st.text_input("Transit feature", value=current_row.get("Transit feature", ""))
+                                new_notes = st.text_area("Additional notes", value=current_row.get("Notes", ""))
 
                                 submitted_edit = st.form_submit_button("Save Changes")
 
                             if submitted_edit:
                                 updated_row = [
-                                    current_row["Timestamp"],
+                                    current_row.get("Timestamp", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
                                     new_case_id,
                                     new_seizure_country,
                                     new_n_seized,
@@ -1574,7 +1581,7 @@ if "user" in st.session_state:
                                     new_status,
                                     new_transit,
                                     new_notes,
-                                    st.session_state["user"]
+                                    st.session_state.get("user", "")
                                 ]
                                 worksheet.update(f"A{row_index}:J{row_index}", [updated_row])
                                 st.success("✅ Case updated successfully!")
