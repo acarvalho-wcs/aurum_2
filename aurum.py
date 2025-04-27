@@ -1381,16 +1381,15 @@ def display_alert_update_timeline(sheet_id):
     df_alerts = load_alerts()
     df_updates = load_alert_updates()
 
-    if df_alerts.empty:
-        st.error("❌ Could not load alerts from the database.")
+    if df_alerts.empty or "Created By" not in df_alerts.columns:
+        st.info("⚠️ No alerts submitted yet.")
+        return
+
+    if df_updates.empty or "User" not in df_updates.columns:
+        st.info("⚠️ No updates submitted yet.")
         return
 
     user = st.session_state["user"]
-
-    # 🔥 Verificação: df_updates precisa ter a coluna "User" antes de usar
-    if "User" not in df_updates.columns:
-        st.warning("⚠️ No updates available yet.")
-        return
 
     # Alertas criados pelo usuário
     created_alerts = df_alerts[df_alerts["Created By"] == user]
@@ -1406,7 +1405,7 @@ def display_alert_update_timeline(sheet_id):
     df_user_alerts = pd.concat([created_alerts, updated_alerts]).drop_duplicates(subset="Alert ID")
 
     if df_user_alerts.empty:
-        st.info("You haven't submitted or updated any alerts yet.")
+        st.info("⚠️ You haven't submitted or updated any alerts yet.")
         return
 
     selected_title = st.selectbox("Select an alert to update:", df_user_alerts["Title"].tolist())
