@@ -1381,31 +1381,34 @@ def display_alert_update_timeline(sheet_id):
     df_alerts = load_alerts()
     df_updates = load_alert_updates()
 
-    if df_alerts.empty or "Created By" not in df_alerts.columns:
-        st.info("⚠️ No alerts submitted yet.")
-        return
-
-    if df_updates.empty or "User" not in df_updates.columns:
-        st.info("⚠️ No updates submitted yet.")
+    if df_alerts.empty:
+        st.error("❌ Could not load alerts from the database.")
         return
 
     user = st.session_state["user"]
 
     # Alertas criados pelo usuário
-    created_alerts = df_alerts[df_alerts["Created By"] == user]
+    if "Created By" in df_alerts.columns:
+        created_alerts = df_alerts[df_alerts["Created By"] == user]
+    else:
+        created_alerts = pd.DataFrame()
 
     # Alertas atualizados pelo usuário
-    relevant_updates = df_updates[
-        (df_updates["User"] == user) | (df_updates["User"] == "Anonymous")
-    ]
-    updated_alert_ids = relevant_updates["Alert ID"].unique()
+    if "User" in df_updates.columns:
+        relevant_updates = df_updates[
+            (df_updates["User"] == user) | (df_updates["User"] == "Anonymous")
+        ]
+    else:
+        relevant_updates = pd.DataFrame()
+
+    updated_alert_ids = relevant_updates["Alert ID"].unique() if not relevant_updates.empty else []
     updated_alerts = df_alerts[df_alerts["Alert ID"].isin(updated_alert_ids)]
 
     # Junta ambos
     df_user_alerts = pd.concat([created_alerts, updated_alerts]).drop_duplicates(subset="Alert ID")
 
     if df_user_alerts.empty:
-        st.info("⚠️ You haven't submitted or updated any alerts yet.")
+        st.info("You haven't submitted or updated any alerts yet.")
         return
 
     selected_title = st.selectbox("Select an alert to update:", df_user_alerts["Title"].tolist())
@@ -1434,11 +1437,6 @@ def display_alert_update_timeline(sheet_id):
         submitted = st.form_submit_button("➕ Add Update")
 
     if submitted and new_update.strip():
-        sheets = connect_to_sheets()
-        if sheets is None:
-            st.error("❌ Unable to connect to submit update.")
-            return
-
         try:
             update_row = [alert_id, datetime.now(brt).strftime("%Y-%m-%d %H:%M:%S (BRT)"), update_user, new_update.strip()]
             try:
