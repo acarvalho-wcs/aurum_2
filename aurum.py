@@ -1461,7 +1461,7 @@ if "user" in st.session_state:
     st.markdown("### Case Management")
     col3, col4 = st.columns(2)
 
-     with col3:
+    with col3:
         with st.expander("**Submit New Case**", expanded=False):
             # Chaves dos campos para controlar o form
             field_keys = {
