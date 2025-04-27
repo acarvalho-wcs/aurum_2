@@ -1222,65 +1222,124 @@ if st.session_state["show_sidebar_request"]:
             if not new_username or not new_password or not reason:
                 st.sidebar.warning("All fields are required.")
             else:
-                timestamp = datetime.now(brt).strftime("%Y-%m-%d %H:%M:%S (BRT)")
-                requests_ws.append_row([
-                    timestamp,
-                    new_username,
-                    new_password,
-                    institution,
-                    email,
-                    reason
-                ])
-                st.sidebar.success("✅ Request submitted!")
-                st.session_state["show_sidebar_request"] = False
+                try:
+                    sheets = connect_to_sheets()
+                    if sheets is None:
+                        st.sidebar.error("❌ Unable to connect to the database.")
+                    else:
+                        worksheet = sheets.worksheet("Access Requests")
+                        timestamp = datetime.now(brt).strftime("%Y-%m-%d %H:%M:%S (BRT)")
+                        worksheet.append_row([
+                            timestamp,
+                            new_username.strip(),
+                            new_password.strip(),
+                            institution.strip(),
+                            email.strip(),
+                            reason.strip(),
+                            "FALSE",  # Approved (default FALSE)
+                            "FALSE"   # Is_Admin (default FALSE)
+                        ])
+                        st.sidebar.success("✅ Request submitted!")
+                        st.session_state["show_sidebar_request"] = False
+                        st.rerun()
+                except Exception as e:
+                    st.sidebar.error(f"❌ Failed to submit request: {e}")
+
+# Exibe o formulário de solicitação na sidebar se o botão foi clicado
+if st.session_state["show_sidebar_request"]:
+    with st.sidebar.form("sidebar_request_form"):
+        new_username = st.text_input("Choose a username", key="sidebar_user")
+        new_password = st.text_input("Choose a password", type="password", key="sidebar_pass")
+        institution = st.text_input("Institution", key="sidebar_inst")
+        email = st.text_input("E-mail", key="sidebar_email")
+        reason = st.text_area("Why do you want access to Aurum?", key="sidebar_reason")
+        submit_request = st.form_submit_button("Submit Request")
+
+        if submit_request:
+            if not new_username or not new_password or not reason:
+                st.sidebar.warning("All fields are required.")
+            else:
+                try:
+                    sheets = connect_to_sheets()
+                    if sheets is None:
+                        st.sidebar.error("❌ Unable to connect to the database.")
+                    else:
+                        worksheet = sheets.worksheet("Access Requests")
+                        timestamp = datetime.now(brt).strftime("%Y-%m-%d %H:%M:%S (BRT)")
+                        worksheet.append_row([
+                            timestamp,
+                            new_username.strip(),
+                            new_password.strip(),
+                            institution.strip(),
+                            email.strip(),
+                            reason.strip(),
+                            "FALSE",  # Approved (default FALSE)
+                            "FALSE"   # Is_Admin (default FALSE)
+                        ])
+                        st.sidebar.success("✅ Request submitted!")
+                        st.session_state["show_sidebar_request"] = False
+                        st.rerun()
+                except Exception as e:
+                    st.sidebar.error(f"❌ Failed to submit request: {e}")
 
 if st.session_state.get("is_admin"):
     st.markdown("## 🛡️ Admin Panel - Approve Access Requests")
-    request_df = pd.DataFrame(requests_ws.get_all_records())
-    if not request_df.empty:
-        st.dataframe(request_df)
+    try:
+        sheets = connect_to_sheets()
+        if sheets is None:
+            st.error("❌ Unable to connect to the database.")
+        else:
+            requests_ws = sheets.worksheet("Access Requests")
+            users_ws = sheets.worksheet("Users")
 
-        with st.form("approve_form"):
-            new_user = st.selectbox("Select username to approve:", request_df["Username"].unique())
-            new_password = st.text_input("Set initial password", type="password")
-            is_admin = st.checkbox("Grant admin access?")
-            approve_button = st.form_submit_button("Approve User")
+            request_df = pd.DataFrame(requests_ws.get_all_records())
+            if not request_df.empty:
+                st.dataframe(request_df)
 
-            if approve_button:
-                if not new_user or not new_password:
-                    st.warning("Username and password are required.")
-                else:
-                    try:
-                        # Buscar linha correspondente
-                        user_row = request_df[request_df["Username"] == new_user]
-                        if user_row.empty:
-                            st.warning("User not found in access requests.")
+                with st.form("approve_form"):
+                    new_user = st.selectbox("Select username to approve:", request_df["Username"].unique())
+                    new_password = st.text_input("Set initial password", type="password")
+                    is_admin = st.checkbox("Grant admin access?")
+                    approve_button = st.form_submit_button("Approve User")
+
+                    if approve_button:
+                        if not new_user or not new_password:
+                            st.warning("Username and password are required.")
                         else:
-                            row_index = user_row.index[0]
-                            is_admin_str = "TRUE" if is_admin else "FALSE"
+                            try:
+                                user_row = request_df[request_df["Username"] == new_user]
+                                if user_row.empty:
+                                    st.warning("User not found in access requests.")
+                                else:
+                                    row_index = user_row.index[0]
+                                    is_admin_str = "TRUE" if is_admin else "FALSE"
 
-                            # Pega o E-mail associado do Access Requests
-                            email = user_row.iloc[0]["E-mail"].strip()
+                                    email = user_row.iloc[0]["E-mail"].strip()
 
-                            # Atualizar Access Requests
-                            requests_ws.update_cell(row_index + 2, request_df.columns.get_loc("Approved") + 1, "TRUE")
-                            requests_ws.update_cell(row_index + 2, request_df.columns.get_loc("Is_Admin") + 1, is_admin_str)
+                                    # Atualiza Access Requests
+                                    requests_ws.update_cell(row_index + 2, request_df.columns.get_loc("Approved") + 1, "TRUE")
+                                    requests_ws.update_cell(row_index + 2, request_df.columns.get_loc("Is_Admin") + 1, is_admin_str)
 
-                            # Verificar se já existe na aba Users
-                            users_df = pd.DataFrame(users_ws.get_all_records())
-                            if new_user not in users_df["Username"].values:
-                                users_ws.append_row([
-                                    new_user,
-                                    new_password,
-                                    email,
-                                    is_admin_str,
-                                    "TRUE"
-                                ])
+                                    # Atualiza Users
+                                    users_df = pd.DataFrame(users_ws.get_all_records())
+                                    if new_user not in users_df["Username"].values:
+                                        users_ws.append_row([
+                                            new_user,
+                                            new_password,
+                                            email,
+                                            is_admin_str,
+                                            "TRUE"  # Approved
+                                        ])
 
-                            st.success(f"✅ {new_user} has been approved and added to the system.")
-                            st.info("🔐 The user is now authorized to log into Aurum.")
-                    except Exception as e:
-                        st.error(f"❌ Failed to approve user: {e}")
+                                    st.success(f"✅ {new_user} has been approved and added to the system.")
+                                    st.info("🔐 The user is now authorized to log into Aurum.")
+                                    st.rerun()
+                            except Exception as e:
+                                st.error(f"❌ Failed to approve user: {e}")
+            else:
+                st.info("No pending access requests found.")
+    except Exception as e:
+        st.error(f"❌ Failed to load access requests: {e}")
 
 # --- FORMULÁRIO ---
 def get_worksheet(sheet_name="Aurum_data"):
