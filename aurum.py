@@ -1292,7 +1292,7 @@ def load_sheet_data(sheet_name, sheets):
         return pd.DataFrame()
 
 # --- Função para submissão de alertas ---
-ddef display_alert_submission_form(sheet_id):
+def display_alert_submission_form(sheet_id):
     sheets = connect_to_sheets()
     if sheets is None:
         st.error("❌ Unable to connect to the database to submit alerts.")
