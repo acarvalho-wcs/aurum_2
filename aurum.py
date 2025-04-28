@@ -96,12 +96,6 @@ with st.sidebar:
     st.caption("© Wildlife Conservation Society - Brazil, 2025")
 
 # --- INTERFACE PRINCIPAL ---
-st.title("Analyses")
-current_tab = tabs(
-    options=["Visualization", "Trend Analysis", "Co-occurrence Analysis", "Anomaly Detection", "Network Analysis"],
-    default_value="",
-)
-
 st.title("Wildlife Trafficking Alerts")
 
 current_tab = tabs(
