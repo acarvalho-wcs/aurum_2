@@ -267,11 +267,8 @@ if uploaded_file is None:
     **Upload your XLSX data file in the sidebar to begin.**  
     For the full Aurum experience, please request access or log in if you already have an account.  
     Click **About Aurum** to learn more about each analysis module.
-    """)
-    
-st.markdown("---")
-st.caption("© Wildlife Conservation Society - Brazil, 2025")
-    
+    """)   
+   
 df = None
 df_selected = None
 if uploaded_file is not None:
@@ -917,3 +914,6 @@ if uploaded_file is not None:
 # --- RODAPÉ ---
 st.markdown("\n---\n")
 st.caption("Powered by Aurum 2.0")
+
+st.markdown("---")
+st.caption("© Wildlife Conservation Society - Brazil, 2025")
