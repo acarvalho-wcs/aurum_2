@@ -269,8 +269,8 @@ if uploaded_file is None:
     Click **About Aurum** to learn more about each analysis module.
     """)
     
- st.markdown("---")
- st.caption("© Wildlife Conservation Society - Brazil, 2025")
+st.markdown("---")
+st.caption("© Wildlife Conservation Society - Brazil, 2025")
     
 df = None
 df_selected = None
