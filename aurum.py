@@ -55,13 +55,6 @@ if uploaded_file is None:
     Click **About Aurum** to learn more about each analysis module.
     """)
 
-# --- ALERTAS PÚBLICOS (visível para todos, inclusive sem login) ---
-def display_public_alerts_section(sheet_id):
-    with st.container():
-        st.markdown("## 🌍 Alert Board")
-        st.caption("These alerts are publicly available and updated by verified users of the Aurum system.")
-        st.markdown("### Wildlife Trafficking Alerts")
-
 # --- CONFIG INICIAL ---
 SHEET_ID = "1HVYbot3Z9OBccBw7jKNw5acodwiQpfXgavDTIptSKic"
 ALERTS_SHEET = "Alerts"
@@ -252,6 +245,118 @@ elif current_tab == "Update Alert":
             st.success("✅ Update submitted successfully!")
             st.rerun()
 
+df = None
+df_selected = None
+if uploaded_file is not None:
+    try:
+        df = pd.read_excel(uploaded_file)
+
+        df.columns = df.columns.str.strip().str.replace('\xa0', '', regex=True)
+        if 'Year' in df.columns:
+            df['Year'] = df['Year'].astype(str).str.extract(r'(\d{4})').astype(float)
+
+        def expand_multi_species_rows(df):
+            expanded_rows = []
+            for _, row in df.iterrows():
+                matches = re.findall(r'(\d+)\s*([A-Z][a-z]+(?:_[a-z]+)+)', str(row.get('N seized specimens', '')))
+                if matches:
+                    for qty, species in matches:
+                        new_row = row.copy()
+                        new_row['N_seized'] = float(qty)
+                        new_row['Species'] = species
+                        expanded_rows.append(new_row)
+                else:
+                    expanded_rows.append(row)
+            return pd.DataFrame(expanded_rows)
+
+        df = expand_multi_species_rows(df).reset_index(drop=True)
+
+        # Aplicar valores numéricos aos países se o arquivo estiver disponível
+        import os
+        country_score_path = "country_offenders_values.csv"
+        if os.path.exists(country_score_path):
+            df_country_score = pd.read_csv(country_score_path, encoding="ISO-8859-1")
+            country_map = dict(zip(df_country_score["Country"].str.strip(), df_country_score["Value"]))
+
+            def score_countries(cell_value, country_map):
+                if not isinstance(cell_value, str):
+                    return 0
+                countries = [c.strip() for c in cell_value.split("+")]
+                return sum(country_map.get(c, 0) for c in countries)
+
+            # País de origem dos infratores
+            if "Country of offenders" in df.columns:
+                df["Offender_value"] = df["Country of offenders"].apply(lambda x: score_countries(x, country_map))
+
+            # País de apreensão ou envio
+            if "Country of seizure or shipment" in df.columns:
+                df["Seizure_value"] = df["Country of seizure or shipment"].apply(lambda x: score_countries(x, country_map))
+
+        else:
+            st.warning("⚠️ File country_offenders_values.csv not found. Country scoring skipped.")
+
+        # Marcação de convergência logística
+        if 'Case #' in df.columns and 'Species' in df.columns:
+            species_per_case = df.groupby('Case #')['Species'].nunique()
+            df['Logistic Convergence'] = df['Case #'].map(lambda x: "1" if species_per_case.get(x, 0) > 1 else "0")
+
+        def normalize_text(text):
+            if not isinstance(text, str):
+                text = str(text)
+            text = text.strip().lower()
+            text = unicodedata.normalize("NFKD", text)
+            text = re.sub(r'\\s+', ' ', text)
+            return text
+
+        def infer_stage(row):
+            seizure = normalize_text(row.get("Seizure Status", ""))
+            transit = normalize_text(row.get("Transit Feature", ""))
+            logistic = row.get("Logistic Convergence", "0")
+            if any(k in seizure for k in ["planned", "trap", "attempt"]):
+                return "Preparation"
+            elif "captivity" in transit or "breeding" in transit:
+                return "Captivity"
+            elif any(k in transit for k in ["airport", "border", "highway", "port"]):
+                return "Transport"
+            elif logistic == "1":
+                return "Logistic Consolidation"
+            else:
+                return "Unclassified"
+
+        df["Inferred Stage"] = df.apply(infer_stage, axis=1)
+
+        st.success("✅ File uploaded and cleaned successfully!")
+
+        st.sidebar.markdown("## Select Species")
+        species_options = sorted(df['Species'].dropna().unique())
+        selected_species = st.sidebar.multiselect("Select one or more species:", species_options)
+
+        if selected_species:
+            df_selected = df[df['Species'].isin(selected_species)]
+
+            show_viz = st.sidebar.checkbox("Data Visualization", value=False)
+            if show_viz:
+                st.markdown("## Data Visualization")
+                if st.sidebar.checkbox("Preview data"):
+                    st.write("### Preview of cleaned data:")
+                    st.dataframe(df_selected.head())
+
+                chart_type = st.sidebar.selectbox("Select chart type:", ["Bar", "Line", "Scatter", "Pie"])
+                x_axis = st.sidebar.selectbox("X-axis:", df_selected.columns, index=0)
+                y_axis = st.sidebar.selectbox("Y-axis:", df_selected.columns, index=1)
+
+                import plotly.express as px
+                st.markdown("### Custom Chart")
+                if chart_type == "Bar":
+                    fig = px.bar(df_selected, x=x_axis, y=y_axis, color='Species')
+                elif chart_type == "Line":
+                    fig = px.line(df_selected, x=x_axis, y=y_axis, color='Species')
+                elif chart_type == "Scatter":
+                    fig = px.scatter(df_selected, x=x_axis, y=y_axis, color='Species')
+                elif chart_type == "Pie":
+                    fig = px.pie(df_selected, names=x_axis, values=y_axis)
+                st.plotly_chart(fig)
+                
 st.title("Analyses")
 current_tab = tabs(
     options=["Import xlsx", "Visualization", "Trend Analysis", "Co-occurrence Analysis", "Anomaly Detection", "Network Analysis"],
