@@ -106,8 +106,9 @@ current_tab = tabs(
 df_alerts = load_alerts()
 df_updates = load_alert_updates()
 
+st.title("Analyses")
 current_tab = tabs(
-    options=["Visualization", "Trend Analysis", "Co-occurrence Analysis"],
+    options=["Visualization", "Trend Analysis", "Co-occurrence Analysis", "Anomaly Detection", "Network Analysis"],
     default_value="",
 )
 
