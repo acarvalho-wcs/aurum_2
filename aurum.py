@@ -48,29 +48,6 @@ The platform enables the upload and processing of case-level data and provides a
 **Aurum** bridges conservation data and investigative workflows, offering a scalable and field-ready platform for intelligence-led responses to wildlife crime.
 """)
     
-st.sidebar.markdown("## 📂 Upload Data")
-uploaded_file = st.sidebar.file_uploader("**Upload your Excel file (.xlsx).**", type=["xlsx"])
-
-st.sidebar.markdown("**Download Template**")
-with open("Aurum_template.xlsx", "rb") as f:
-    st.sidebar.download_button(
-        label="Download a data template for wildlife trafficking analysis in Aurum",
-        data=f,
-        file_name="aurum_template.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-
-# --- Mensagem inicial caso nenhum arquivo tenha sido enviado e usuário não esteja logado ---
-if uploaded_file is None:
-    st.markdown("""
-    **Aurum** is a criminal intelligence platform developed to support the monitoring and investigation of **wildlife trafficking**.
-    By integrating advanced statistical methods and interactive visualizations, Aurum enables researchers, enforcement agencies, and conservation organizations to identify operational patterns and support data-driven responses to illegal wildlife trade.
-
-    **Upload your XLSX data file in the sidebar to begin.**  
-    For the full Aurum experience, please request access or log in if you already have an account.  
-    Click **About Aurum** to learn more about each analysis module.
-    """)
-
 # --- CONFIG INICIAL ---
 SHEET_ID = "1HVYbot3Z9OBccBw7jKNw5acodwiQpfXgavDTIptSKic"
 ALERTS_SHEET = "Alerts"
@@ -271,6 +248,29 @@ current_tab = tabs(
     options=["Trend Analysis", "Co-occurrence Analysis", "Anomaly Detection", "Network Analysis"],
     default_value="",
 )
+
+st.sidebar.markdown("## 📂 Upload Data")
+uploaded_file = st.sidebar.file_uploader("**Upload your Excel file (.xlsx).**", type=["xlsx"])
+
+st.sidebar.markdown("**Download Template**")
+with open("Aurum_template.xlsx", "rb") as f:
+    st.sidebar.download_button(
+        label="Download a data template for wildlife trafficking analysis in Aurum",
+        data=f,
+        file_name="aurum_template.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+# --- Mensagem inicial caso nenhum arquivo tenha sido enviado e usuário não esteja logado ---
+if uploaded_file is None:
+    st.markdown("""
+    **Aurum** is a criminal intelligence platform developed to support the monitoring and investigation of **wildlife trafficking**.
+    By integrating advanced statistical methods and interactive visualizations, Aurum enables researchers, enforcement agencies, and conservation organizations to identify operational patterns and support data-driven responses to illegal wildlife trade.
+
+    **Upload your XLSX data file in the sidebar to begin.**  
+    For the full Aurum experience, please request access or log in if you already have an account.  
+    Click **About Aurum** to learn more about each analysis module.
+    """)
 
 df = None
 df_selected = None
