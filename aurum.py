@@ -201,8 +201,7 @@ elif current_tab == "Update Alert":
 
 st.title("Analyses")
 current_tab = tabs(
-    options=["Import xlsx", "Visualization", "Trend Analysis"],
-    ["Co-occurrence Analysis", "Anomaly Detection", "Network Analysis"],
+    options=["Import xlsx", "Visualization", "Trend Analysis", "Co-occurrence Analysis", "Anomaly Detection", "Network Analysis"],
     default_value="",
 )
 
