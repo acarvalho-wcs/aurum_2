@@ -48,18 +48,6 @@ The platform enables the upload and processing of case-level data and provides a
 **Aurum** bridges conservation data and investigative workflows, offering a scalable and field-ready platform for intelligence-led responses to wildlife crime.
 """)
 
-st.sidebar.markdown("## 📂 Upload Data")
-uploaded_file = st.sidebar.file_uploader("**Upload your Excel file (.xlsx).**", type=["xlsx"])
-
-st.sidebar.markdown("**Download Template**")
-with open("Aurum_template.xlsx", "rb") as f:
-    st.sidebar.download_button(
-        label="Download a data template for wildlife trafficking analysis in Aurum",
-        data=f,
-        file_name="aurum_template.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-
 # --- Mensagem inicial caso nenhum arquivo tenha sido enviado e usuário não esteja logado ---
 if uploaded_file is None:
     st.markdown("""
@@ -271,6 +259,18 @@ current_tab = tabs(
     options=["Trend Analysis", "Co-occurrence Analysis", "Anomaly Detection", "Network Analysis"],
     default_value="",
 )
+
+st.sidebar.markdown("## 📂 Upload Data")
+uploaded_file = st.sidebar.file_uploader("**Upload your Excel file (.xlsx).**", type=["xlsx"])
+
+st.sidebar.markdown("**Download Template**")
+with open("Aurum_template.xlsx", "rb") as f:
+    st.sidebar.download_button(
+        label="Download a data template for wildlife trafficking analysis in Aurum",
+        data=f,
+        file_name="aurum_template.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
 
 df = None
 df_selected = None
