@@ -200,3 +200,157 @@ elif current_tab == "Update Alert":
 # --- Rodapé ---
 st.markdown("\n---\n")
 st.caption("Powered by Aurum 2.0")
+
+
+# --- CONFIGURAÇÃO INICIAL ---
+SHEET_ID = "1HVYbot3Z9OBccBw7jKNw5acodwiQpfXgavDTIptSKic"
+ALERTS_SHEET = "Alerts"
+UPDATES_SHEET = "Alert Updates"
+brt = pytz.timezone("America/Sao_Paulo")
+
+scope = ["https://www.googleapis.com/auth/spreadsheets"]
+credentials = Credentials.from_service_account_info(
+    st.secrets["gcp_service_account"], scopes=scope
+)
+client = gspread.authorize(credentials)
+sheets = client.open_by_key(SHEET_ID)
+
+# --- FUNÇÕES AUXILIARES ---
+@st.cache_data(ttl=600)
+def load_alerts():
+    worksheet = sheets.worksheet(ALERTS_SHEET)
+    return pd.DataFrame(worksheet.get_all_records())
+
+@st.cache_data(ttl=600)
+def load_alert_updates():
+    try:
+        worksheet = sheets.worksheet(UPDATES_SHEET)
+        return pd.DataFrame(worksheet.get_all_records())
+    except gspread.exceptions.WorksheetNotFound:
+        return pd.DataFrame(columns=["Alert ID", "Timestamp", "User", "Update Text"])
+
+def submit_new_alert(alert_row):
+    worksheet = sheets.worksheet(ALERTS_SHEET)
+    worksheet.append_row(alert_row, value_input_option="USER_ENTERED")
+
+def submit_alert_update(update_row):
+    try:
+        worksheet = sheets.worksheet(UPDATES_SHEET)
+    except gspread.exceptions.WorksheetNotFound:
+        worksheet = sheets.add_worksheet(title=UPDATES_SHEET, rows="1000", cols="4")
+        worksheet.append_row(["Alert ID", "Timestamp", "User", "Update Text"])
+    worksheet.append_row(update_row, value_input_option="USER_ENTERED")
+
+def status_color(status):
+    status = status.lower()
+    if status == "ongoing": return "#2ecc71"
+    elif status == "closed": return "#e74c3c"
+    elif status == "investigating": return "#f1c40f"
+    elif status == "resolved": return "#3498db"
+    else: return "#95a5a6"
+
+# --- INTERFACE ---
+st.title("Wildlife Trafficking Alerts")
+
+current_tab = tabs(
+    options=["Public Alerts", "Submit New Alert", "Update Alert"],
+    default_value="Public Alerts",
+)
+
+# --- PUBLIC ALERTS ---
+if current_tab == "Public Alerts":
+    st.subheader("Recent Alerts")
+    df_alerts = load_alerts()
+    df_updates = load_alert_updates()
+
+    if df_alerts.empty:
+        st.info("No alerts found.")
+    else:
+        public_alerts = df_alerts[df_alerts["Public"].astype(str).str.upper() == "TRUE"]
+        cols = st.columns(3)
+
+        for idx, (_, a) in enumerate(public_alerts.iterrows()):
+            with cols[idx % 3]:
+                with st.container():
+                    st.markdown(f"""
+                        <div style='background-color: #fff; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);'>
+                            <h4>{a['Title']}</h4>
+                            <p style='color: #666; font-size: 0.9rem;'>{a.get('Description', '')}</p>
+                            <p><b>Location:</b> {a.get('Country', 'Unknown')}</p>
+                            <p><b>Date:</b> {a.get('Created At', 'Unknown')}</p>
+                            <p><b>Status:</b> <code>{a.get('Risk Level', 'Unknown')}</code></p>
+                        </div>
+                    """, unsafe_allow_html=True)
+
+                with st.expander("View Updates Timeline"):
+                    updates = df_updates[df_updates["Alert ID"] == a["Alert ID"]]
+                    if updates.empty:
+                        st.info("No updates available.")
+                    else:
+                        for _, upd in updates.sort_values("Timestamp", ascending=False).iterrows():
+                            color = status_color(upd.get("Status", ""))
+                            st.markdown(f"""
+                                <div style='display: flex; align-items: flex-start; margin-bottom: 0.8rem;'>
+                                    <div style='margin-right: 10px; margin-top: 6px;'>
+                                        <div style='width: 10px; height: 10px; background-color: {color}; border-radius: 50%;'></div>
+                                    </div>
+                                    <div>
+                                        <strong>{upd['Timestamp']}</strong> — <span style='color: {color};'><b>{upd['User']}</b></span><br>
+                                        <span style='font-size: 0.9em; color: #666;'>{upd['Update Text']}</span>
+                                    </div>
+                                </div>
+                            """, unsafe_allow_html=True)
+
+# --- SUBMIT NEW ALERT ---
+elif current_tab == "Submit New Alert":
+    st.subheader("Submit a New Alert")
+    title = st.text_input("Alert Title")
+    description = st.text_area("Description")
+    species = st.text_input("Species involved (optional)")
+    country = st.text_input("Location")
+    risk = st.selectbox("Risk Level", ["Low", "Medium", "High"])
+    submit = button(text="Submit Alert", variant="primary")
+
+    if submit and title and description:
+        alert_id = str(uuid4())
+        created_at = datetime.now(brt).strftime("%Y-%m-%d %H:%M:%S (BRT)")
+        created_by = "Anonymous"  # Pode ser username se logado
+        display_as = "Anonymous"
+        category = "Species"  # Default para agora
+        source_link = ""
+
+        new_alert = [
+            alert_id, created_at, created_by, display_as, title, description,
+            category, species, country, risk, source_link, "TRUE"
+        ]
+        submit_new_alert(new_alert)
+        st.cache_data.clear()
+        st.rerun()
+
+# --- UPDATE ALERT ---
+elif current_tab == "Update Alert":
+    st.subheader("Update an Existing Alert")
+    df_alerts = load_alerts()
+
+    if df_alerts.empty:
+        st.info("No alerts found.")
+    else:
+        alert_titles = df_alerts["Title"].tolist()
+        selected_alert = st.selectbox("Select Alert to Update", options=alert_titles)
+
+        new_update = st.text_area("Update Notes")
+        update = button(text="Submit Update", variant="secondary")
+
+        if update and new_update:
+            alert_id = df_alerts[df_alerts["Title"] == selected_alert].iloc[0]["Alert ID"]
+            timestamp = datetime.now(brt).strftime("%Y-%m-%d %H:%M:%S (BRT)")
+            user = "Anonymous"  # Pode ser username se logado
+
+            update_row = [alert_id, timestamp, user, new_update]
+            submit_alert_update(update_row)
+            st.cache_data.clear()
+            st.rerun()
+
+# --- Rodapé ---
+st.markdown("\n---\n")
+st.caption("Powered by Aurum 2.0")
