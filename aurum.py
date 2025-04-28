@@ -106,6 +106,11 @@ current_tab = tabs(
 df_alerts = load_alerts()
 df_updates = load_alert_updates()
 
+current_tab = tabs(
+    options=["Visualization", "Trend Analysis", "Co-occurrence Analysis"],
+    default_value="",
+)
+
 # --- PUBLIC ALERTS ---
 if current_tab == "Public Alerts":
     st.subheader("Recent Alerts")
