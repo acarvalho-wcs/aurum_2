@@ -1,4 +1,3 @@
-# --- IMPORTS ---
 import streamlit as st
 import pandas as pd
 import gspread
@@ -73,7 +72,7 @@ with st.sidebar:
             user_row = users_df[users_df["Username"] == username]
             if not user_row.empty and str(user_row.iloc[0]["Approved"]).strip().lower() == "true":
                 stored_password = user_row.iloc[0]["Password"]
-                if password == stored_password:  # Comparação direta, sem bcrypt
+                if password == stored_password:
                     st.session_state["user"] = username
                     st.session_state["user_email"] = user_row.iloc[0]["E-mail"]
                     st.session_state["is_admin"] = str(user_row.iloc[0].get("Is_Admin", "")).strip().lower() == "true"
@@ -93,33 +92,16 @@ with st.sidebar:
     st.markdown("---")
     st.caption("© Wildlife Conservation Society - Brazil, 2025")
 
-def submit_new_alert(alert_row):
-    worksheet = sheets.worksheet(ALERTS_SHEET)
-    worksheet.append_row(alert_row, value_input_option="USER_ENTERED")
-
-def submit_alert_update(update_row):
-    try:
-        worksheet = sheets.worksheet(UPDATES_SHEET)
-    except gspread.exceptions.WorksheetNotFound:
-        worksheet = sheets.add_worksheet(title=UPDATES_SHEET, rows="1000", cols="4")
-        worksheet.append_row(["Alert ID", "Timestamp", "User", "Update Text"])
-    worksheet.append_row(update_row, value_input_option="USER_ENTERED")
-
-def status_color(status):
-    status = status.lower()
-    if status == "ongoing": return "#2ecc71"
-    elif status == "closed": return "#e74c3c"
-    elif status == "investigating": return "#f1c40f"
-    elif status == "resolved": return "#3498db"
-    else: return "#95a5a6"
-
-# --- INTERFACE ---
+# --- INTERFACE PRINCIPAL ---
 st.title("Wildlife Trafficking Alerts")
 
 current_tab = tabs(
     options=["Public Alerts", "Submit New Alert", "Update Alert"],
     default_value="Public Alerts",
 )
+
+df_alerts = load_alerts()
+df_updates = load_alert_updates()
 
 # --- PUBLIC ALERTS ---
 if current_tab == "Public Alerts":
