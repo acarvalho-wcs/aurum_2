@@ -915,5 +915,5 @@ if uploaded_file is not None:
 st.markdown("\n---\n")
 st.caption("Powered by Aurum 2.0")
 
-st.markdown("---")
-st.caption("© Wildlife Conservation Society - Brazil, 2025")
+    st.markdown("---")
+    st.caption("© Wildlife Conservation Society - Brazil, 2025")
