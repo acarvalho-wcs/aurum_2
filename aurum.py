@@ -31,16 +31,6 @@ logo = Image.open("logo.png")
 st.sidebar.image("logo.png", use_container_width=True)
 st.sidebar.markdown("## Welcome to Aurum")
 st.sidebar.markdown("Log in below to unlock multi-user tools.")
-# --- Mensagem inicial caso nenhum arquivo tenha sido enviado e usuário não esteja logado ---
-if uploaded_file is None:
-    st.markdown("""
-    **Aurum** is a criminal intelligence platform developed to support the monitoring and investigation of **wildlife trafficking**.
-    By integrating advanced statistical methods and interactive visualizations, Aurum enables researchers, enforcement agencies, and conservation organizations to identify operational patterns and support data-driven responses to illegal wildlife trade.
-
-    **Upload your XLSX data file in the sidebar to begin.**  
-    For the full Aurum experience, please request access or log in if you already have an account.  
-    Click **About Aurum** to learn more about each analysis module.
-    """)   
 show_about = st.sidebar.button("**About Aurum**")
 if show_about:
     st.markdown("## About Aurum")
