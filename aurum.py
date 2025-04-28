@@ -1,3 +1,4 @@
+# --- IMPORTS ---
 import streamlit as st
 import pandas as pd
 import gspread
@@ -37,14 +38,16 @@ def load_users():
     return pd.DataFrame(sheets.worksheet(USERS_SHEET).get_all_records())
 
 def submit_new_alert(alert_row):
-    sheets.worksheet(ALERTS_SHEET).append_row(alert_row, value_input_option="USER_ENTERED")
+    worksheet = sheets.worksheet(ALERTS_SHEET)
+    worksheet.append_row(alert_row, value_input_option="USER_ENTERED")
 
 def submit_alert_update(update_row):
     try:
-        sheets.worksheet(UPDATES_SHEET)
+        worksheet = sheets.worksheet(UPDATES_SHEET)
     except gspread.exceptions.WorksheetNotFound:
-        sheets.add_worksheet(title=UPDATES_SHEET, rows="1000", cols="4")
-    sheets.worksheet(UPDATES_SHEET).append_row(update_row, value_input_option="USER_ENTERED")
+        worksheet = sheets.add_worksheet(title=UPDATES_SHEET, rows="1000", cols="4")
+        worksheet.append_row(["Alert ID", "Timestamp", "User", "Update Text"])
+    worksheet.append_row(update_row, value_input_option="USER_ENTERED")
 
 def status_color(status):
     status = status.lower()
@@ -169,6 +172,7 @@ elif current_tab == "Submit New Alert":
         ]
         submit_new_alert(new_alert)
         st.cache_data.clear()
+        st.success("✅ Alert submitted successfully!")
         st.rerun()
 
 # --- UPDATE ALERT ---
@@ -192,8 +196,9 @@ elif current_tab == "Update Alert":
             update_row = [alert_id, timestamp, user, new_update]
             submit_alert_update(update_row)
             st.cache_data.clear()
+            st.success("✅ Update submitted successfully!")
             st.rerun()
 
-# --- Rodapé ---
+# --- RODAPÉ ---
 st.markdown("\n---\n")
 st.caption("Powered by Aurum 2.0")
