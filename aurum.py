@@ -9,6 +9,41 @@ import pytz
 from google.oauth2.service_account import Credentials
 from streamlit_shadcn_ui import button, tabs
 
+# Upload do arquivo
+from PIL import Image
+logo = Image.open("logo.png")
+st.sidebar.image("logo.png", use_container_width=True)
+st.sidebar.markdown("## Welcome to Aurum")
+st.sidebar.markdown("Log in below to unlock multi-user tools.")
+show_about = st.sidebar.button("**About Aurum**")
+if show_about:
+    st.markdown("## About Aurum")
+    st.markdown("""
+**Aurum** is a modular and interactive platform for **criminal intelligence in wildlife trafficking**. Developed by the Wildlife Conservation Society (WCS) – Brazil, it empowers analysts, researchers, and enforcement professionals with data-driven insights through a user-friendly interface.
+
+The platform enables the upload and processing of case-level data and provides a suite of analytical tools, including:
+
+- **Trend Analysis**: Explore directional changes in seizure patterns using segmented regression (TCS) and detect significant deviations from historical averages with cumulative sum control charts (CUSUM).
+- **Species Co-occurrence**: Identify statistically significant co-trafficking relationships between species using chi-square tests and network-based visualizations.
+- **Anomaly Detection**: Detect atypical or high-impact cases using multiple outlier detection methods (Isolation Forest, LOF, DBSCAN, Mahalanobis distance, and Z-Score).
+- **Criminal Network Analysis**: Reveal connections between cases based on shared attributes such as species or offender countries to infer coordination and logistical convergence.
+- **Interactive Visualization**: Build customized plots and dashboards based on selected variables to support real-time analysis and reporting.
+
+**Aurum** bridges conservation data and investigative workflows, offering a scalable and field-ready platform for intelligence-led responses to wildlife crime.
+""")
+
+st.sidebar.markdown("## 📂 Upload Data")
+uploaded_file = st.sidebar.file_uploader("**Upload your Excel file (.xlsx).**", type=["xlsx"])
+
+st.sidebar.markdown("**Download Template**")
+with open("Aurum_template.xlsx", "rb") as f:
+    st.sidebar.download_button(
+        label="Download a data template for wildlife trafficking analysis in Aurum",
+        data=f,
+        file_name="aurum_template.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    
 # --- CONFIG INICIAL ---
 SHEET_ID = "1HVYbot3Z9OBccBw7jKNw5acodwiQpfXgavDTIptSKic"
 ALERTS_SHEET = "Alerts"
