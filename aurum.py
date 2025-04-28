@@ -245,6 +245,12 @@ elif current_tab == "Update Alert":
             st.success("✅ Update submitted successfully!")
             st.rerun()
 
+st.title("Analyses")
+current_tab = tabs(
+    options=["Import xlsx", "Visualization", "Trend Analysis", "Co-occurrence Analysis", "Anomaly Detection", "Network Analysis"],
+    default_value="",
+)
+
 df = None
 df_selected = None
 if uploaded_file is not None:
@@ -356,12 +362,6 @@ if uploaded_file is not None:
                 elif chart_type == "Pie":
                     fig = px.pie(df_selected, names=x_axis, values=y_axis)
                 st.plotly_chart(fig)
-                
-st.title("Analyses")
-current_tab = tabs(
-    options=["Import xlsx", "Visualization", "Trend Analysis", "Co-occurrence Analysis", "Anomaly Detection", "Network Analysis"],
-    default_value="",
-)
 
 # --- RODAPÉ ---
 st.markdown("\n---\n")
