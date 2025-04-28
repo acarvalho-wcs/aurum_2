@@ -131,9 +131,6 @@ with st.sidebar:
                 st.session_state.pop(key, None)
             st.rerun()
 
-    st.markdown("---")
-    st.caption("© Wildlife Conservation Society - Brazil, 2025")
-
 # --- INTERFACE PRINCIPAL ---
 st.title("Wildlife Trafficking Alerts")
 
@@ -271,7 +268,10 @@ if uploaded_file is None:
     For the full Aurum experience, please request access or log in if you already have an account.  
     Click **About Aurum** to learn more about each analysis module.
     """)
-
+    
+    st.markdown("---")
+    st.caption("© Wildlife Conservation Society - Brazil, 2025")
+    
 df = None
 df_selected = None
 if uploaded_file is not None:
