@@ -1,4 +1,3 @@
-# --- IMPORTS ---
 import streamlit as st
 import pandas as pd
 import gspread
@@ -6,8 +5,23 @@ from PIL import Image
 from uuid import uuid4
 from datetime import datetime
 import pytz
+import os
+import re
+import unicodedata
+import numpy as np
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
+from io import BytesIO
+import base64
+from itertools import combinations
+from scipy.stats import chi2_contingency
+from sklearn.ensemble import IsolationForest
+from sklearn.neighbors import LocalOutlierFactor
+from sklearn.cluster import DBSCAN
+from sklearn.preprocessing import StandardScaler
 from google.oauth2.service_account import Credentials
 from streamlit_shadcn_ui import button, tabs
+
 
 st.set_page_config(page_title="Aurum Dashboard", layout="wide")
 
