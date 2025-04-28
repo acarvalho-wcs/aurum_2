@@ -1,11 +1,52 @@
 import streamlit as st
 import pandas as pd
 import gspread
+from PIL import Image
 from google.oauth2.service_account import Credentials
 from streamlit_shadcn_ui import button, tabs
 from uuid import uuid4
 from datetime import datetime
 import pytz
+
+# --- Sidebar ---
+with st.sidebar:
+    # Logo
+    try:
+        logo = Image.open("logo.png")
+        st.image(logo, use_container_width=True)
+    except:
+        st.markdown("## Aurum 2.0")
+
+    # Nome curto
+    st.markdown("### Aurum 2.0")
+    st.caption("Wildlife Trafficking Intelligence Platform")
+
+    # About
+    if st.button("About Aurum"):
+        st.markdown("""
+        ### About Aurum
+        **Aurum** is a platform to detect and combat wildlife trafficking through:
+        - Alert systems
+        - Criminal trend analysis
+        - Species co-occurrence mapping
+        - Anomaly detection
+        - Generative AI insights
+        
+        Developed by **Wildlife Conservation Society (WCS) - Brazil**.
+        """)
+
+    st.markdown("---")
+
+    # Login (opcional se quiser autenticação)
+    st.markdown("### 🔐 User Login")
+    username = st.text_input("Username", placeholder="Enter your username")
+    password = st.text_input("Password", type="password", placeholder="Enter your password")
+    login_button = st.button("Login")
+
+    st.markdown("---")
+
+    # Rodapé
+    st.caption("© Wildlife Conservation Society - Brazil, 2025")
 
 # --- CONFIGURAÇÃO INICIAL ---
 SHEET_ID = "1HVYbot3Z9OBccBw7jKNw5acodwiQpfXgavDTIptSKic"
