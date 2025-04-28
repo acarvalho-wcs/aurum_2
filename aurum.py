@@ -43,7 +43,25 @@ with open("Aurum_template.xlsx", "rb") as f:
         file_name="aurum_template.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    
+
+# --- Mensagem inicial caso nenhum arquivo tenha sido enviado e usuário não esteja logado ---
+if uploaded_file is None:
+    st.markdown("""
+    **Aurum** is a criminal intelligence platform developed to support the monitoring and investigation of **wildlife trafficking**.
+    By integrating advanced statistical methods and interactive visualizations, Aurum enables researchers, enforcement agencies, and conservation organizations to identify operational patterns and support data-driven responses to illegal wildlife trade.
+
+    **Upload your XLSX data file in the sidebar to begin.**  
+    For the full Aurum experience, please request access or log in if you already have an account.  
+    Click **About Aurum** to learn more about each analysis module.
+    """)
+
+# --- ALERTAS PÚBLICOS (visível para todos, inclusive sem login) ---
+def display_public_alerts_section(sheet_id):
+    with st.container():
+        st.markdown("## 🌍 Alert Board")
+        st.caption("These alerts are publicly available and updated by verified users of the Aurum system.")
+        st.markdown("### Wildlife Trafficking Alerts")
+
 # --- CONFIG INICIAL ---
 SHEET_ID = "1HVYbot3Z9OBccBw7jKNw5acodwiQpfXgavDTIptSKic"
 ALERTS_SHEET = "Alerts"
