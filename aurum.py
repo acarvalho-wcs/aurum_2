@@ -911,9 +911,10 @@ if uploaded_file is not None:
 
     except Exception as e:
         st.error(f"❌ Error reading file: {e}")
-# --- RODAPÉ ---
-st.markdown("\n---\n")
-st.caption("Powered by Aurum 2.0")
 
     st.markdown("---")
     st.caption("© Wildlife Conservation Society - Brazil, 2025")
+
+# --- RODAPÉ ---
+st.markdown("\n---\n")
+st.caption("Powered by Aurum 2.0")
