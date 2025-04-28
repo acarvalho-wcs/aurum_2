@@ -9,12 +9,12 @@ import pytz
 from google.oauth2.service_account import Credentials
 from streamlit_shadcn_ui import button, tabs
 
+st.set_page_config(page_title="Aurum Dashboard", layout="wide")
 
 # Upload do arquivo
 from PIL import Image
 logo = Image.open("logo.png")
 st.sidebar.image("logo.png", use_container_width=True)
-st.set_page_config(page_title="Aurum Dashboard", layout="wide")
 st.sidebar.markdown("## Welcome to Aurum")
 st.sidebar.markdown("Log in below to unlock multi-user tools.")
 show_about = st.sidebar.button("**About Aurum**")
