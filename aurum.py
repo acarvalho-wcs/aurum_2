@@ -100,7 +100,7 @@ st.title("Wildlife Trafficking Alerts")
 
 current_tab = tabs(
     options=["Public Alerts", "Submit New Alert", "Update Alert"],
-    default_value="",
+    default_value="None",
 )
 
 df_alerts = load_alerts()
