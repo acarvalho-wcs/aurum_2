@@ -199,6 +199,12 @@ elif current_tab == "Update Alert":
             st.success("✅ Update submitted successfully!")
             st.rerun()
 
+st.title("Analyses")
+current_tab = tabs(
+    options=["Visualization", "Trend Analysis", "Co-occurrence Analysis", "Anomaly Detection", "Network Analysis"],
+    default_value="",
+)
+
 # --- RODAPÉ ---
 st.markdown("\n---\n")
 st.caption("Powered by Aurum 2.0")
