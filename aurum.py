@@ -10,7 +10,7 @@ def t(key):
     lang = st.session_state.get("lang", "en")
     return TRANSLATIONS.get(lang, TRANSLATIONS["en"]).get(key, key)
 
-# Usar colunas diretamente, sem recriar dentro do with
+# Ordem correta: título à esquerda (maior), seletor à direita (menor)
 col_title, col_lang = st.columns([5, 1])
 
 with col_lang:
