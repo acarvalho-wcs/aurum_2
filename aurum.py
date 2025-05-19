@@ -10,9 +10,11 @@ def t(key):
     lang = st.session_state.get("lang", "en")
     return TRANSLATIONS.get(lang, TRANSLATIONS["en"]).get(key, key)
 
-col_lang, col_title = st.columns([5, 1])
-with st.columns([5, 1])[0]:
-    lang_choice = st.selectbox("", ["Português", "English", "Español"], label_visibility="collapsed")
+# Usar colunas diretamente, sem recriar dentro do with
+col_title, col_lang = st.columns([5, 1])
+
+with col_lang:
+    lang_choice = st.selectbox("", ["Português", "English", "Español"])
     lang_map = {"Português": "pt", "English": "en", "Español": "es"}
     st.session_state["lang"] = lang_map.get(lang_choice, "en")
 
