@@ -32,7 +32,7 @@ st.markdown("""
 # --- Selectbox real (posicionado via placeholder) ---
 lang_placeholder = st.empty()
 with lang_placeholder.container():
-    lang_choice = st.selectbox("🌐", ["Português", "English", "Español"], key="lang_selector_final")
+    lang_choice = st.selectbox("", ["Português", "English", "Español"], key="lang_selector_final")
     lang_map = {"Português": "pt", "English": "en", "Español": "es"}
     st.session_state["lang"] = lang_map.get(lang_choice, "en")
 
