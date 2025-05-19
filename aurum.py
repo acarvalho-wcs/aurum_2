@@ -19,7 +19,3 @@ with col_lang:
 
 with col_title:
     st.markdown(f"<h1 style='text-align: center;'>{t('dashboard_title')}</h1>", unsafe_allow_html=True)
-
-
-# --- TÍTULO DO APP ---
-st.title(t("dashboard_title"))
