@@ -10,7 +10,7 @@ def t(key):
     lang = st.session_state.get("lang", "en")
     return TRANSLATIONS.get(lang, TRANSLATIONS["en"]).get(key, key)
 
-col_lang, col_title = st.columns([1, 5])
+col_lang, col_title = st.columns([5, 1])
 with st.columns([1, 5])[0]:
     lang_choice = st.selectbox("", ["Português", "English", "Español"], label_visibility="collapsed")
     lang_map = {"Português": "pt", "English": "en", "Español": "es"}
