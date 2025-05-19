@@ -1,4 +1,34 @@
 import streamlit as st
+import pandas as pd
+import gspread
+from google.oauth2.service_account import Credentials
+import re
+import requests
+import unicodedata
+import statsmodels.api as sm
+import matplotlib.pyplot as plt
+import numpy as np
+import networkx as nx
+import plotly.graph_objects as go
+import plotly.express as px
+from networkx.algorithms.community import greedy_modularity_communities
+from io import BytesIO
+import base64
+from itertools import combinations
+from scipy.stats import chi2_contingency
+from sklearn.ensemble import IsolationForest
+from sklearn.neighbors import LocalOutlierFactor
+from sklearn.cluster import DBSCAN
+from sklearn.preprocessing import StandardScaler
+import os
+import urllib.parse
+from uuid import uuid4
+from datetime import datetime
+import pytz
+from streamlit_shadcn_ui import tabs
+from streamlit_shadcn_ui import button
+import streamlit.components.v1 as components
+brt = pytz.timezone("America/Sao_Paulo")
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Aurum Dashboard", layout="wide")
