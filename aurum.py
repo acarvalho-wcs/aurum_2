@@ -12,7 +12,7 @@ def t(key):
 
 # --- SELETOR DE IDIOMA NA SIDEBAR ---
 with st.sidebar:
-    st.markdown("### 🌐 Idioma / Language / Idioma")
+    st.markdown("### Idioma / Language / Idioma")
     lang_choice = st.selectbox("", ["Português", "English", "Español"], key="lang_sidebar")
     lang_map = {"Português": "pt", "English": "en", "Español": "es"}
     st.session_state["lang"] = lang_map.get(lang_choice, "en")
