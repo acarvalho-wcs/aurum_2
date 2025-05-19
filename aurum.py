@@ -10,31 +10,16 @@ def t(key):
     lang = st.session_state.get("lang", "en")
     return TRANSLATIONS.get(lang, TRANSLATIONS["en"]).get(key, key)
 
-# --- CSS para forçar posicionamento absoluto no topo direito ---
-st.markdown("""
-    <style>
-    div.fixed-lang {
-        position: fixed;
-        top: 15px;
-        right: 20px;
-        z-index: 9999;
-        background-color: white;
-        padding: 2px 8px;
-        border-radius: 8px;
-        box-shadow: 0px 0px 6px rgba(0,0,0,0.1);
-    }
-    </style>
-    <div class="fixed-lang">
-        <span id="lang-placeholder"></span>
-    </div>
-""", unsafe_allow_html=True)
+col_spacer, col_title, col_lang = st.columns([4, 8, 2])
 
-# --- Selectbox real (posicionado via placeholder) ---
-lang_placeholder = st.empty()
-with lang_placeholder.container():
-    lang_choice = st.selectbox("🌐", ["Português", "English", "Español"], key="lang_selector_final")
+with col_lang:
+    lang_choice = st.selectbox("🌐", ["Português", "English", "Español"])
     lang_map = {"Português": "pt", "English": "en", "Español": "es"}
     st.session_state["lang"] = lang_map.get(lang_choice, "en")
+
+with col_title:
+    st.markdown(f"<h1 style='text-align: center;'>{t('dashboard_title')}</h1>", unsafe_allow_html=True)
+
 
 # --- TÍTULO DO APP ---
 st.title(t("dashboard_title"))
