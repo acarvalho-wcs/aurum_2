@@ -12,7 +12,7 @@ def t(key):
 
 col_lang, col_title = st.columns([1, 5])
 with col_lang:
-    lang_choice = st.selectbox(["Português", "English", "Español"])
+    lang_choice = st.selectbox("Português", "English", "Español")
     lang_map = {"Português": "pt", "English": "en", "Español": "es"}
     st.session_state["lang"] = lang_map.get(lang_choice, "en")
 
